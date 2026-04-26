@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+  <title>Star Trail Adventure</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800;900&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/src/styles/main.css">
+</head>
+<body>
+  <canvas id="gc"></canvas>
+  <canvas id="mapc"></canvas>
+
+  <div id="hudStage">
+    <div class="hudBlock"><div class="hudLabel">Score</div><div class="hudVal" id="hs">000000</div></div>
+    <div class="hudBlock"><div class="hudLabel">Coins</div><div class="hudVal" id="hc">00</div></div>
+    <div class="hudBlock"><div class="hudLabel">Stage</div><div class="hudVal" id="hw">1-1</div></div>
+    <div class="hudBlock"><div class="hudLabel">Time</div><div class="hudVal" id="ht">300</div></div>
+    <div class="hudBlock"><div class="hudLabel">Lives</div><div class="hudVal" id="hlv">5</div></div>
+  </div>
+
+  <div id="hudMap">
+    <div id="mapTop">
+      <div id="mapWorldBox">
+        <div id="mapWorldName">World 1 &middot; Sunseed Plains</div>
+        <div id="mapWorldMeta"></div>
+      </div>
+      <div id="mapStageBox">
+        <div id="mapStageName">Select a stage</div>
+        <div id="mapStageMeta"></div>
+      </div>
+    </div>
+    <div id="mapBottom">
+      <div id="mapHelp">Arrows: Move &middot; Enter: Play &middot; Tab / Q / E: Switch World</div>
+    </div>
+  </div>
+
+  <div id="front">
+    <div id="frontBox">
+      <div id="frontTitle">Star Trail<br>Adventure</div>
+      <div id="frontSubtitle">A 3D platformer adventure with world maps, branching paths, fortress stages, secrets, and replay rewards.</div>
+      <div id="menuButtons"></div>
+      <div id="frontProgress"></div>
+    </div>
+  </div>
+
+  <div id="card" class="hidden">
+    <div id="cardBox">
+      <div id="cardTitle"></div>
+      <div id="cardSub"></div>
+      <div id="cardBody"></div>
+    </div>
+  </div>
+
+  <div id="rank" class="hidden"></div>
+  <div id="toast" class="hidden"><div id="toastText"></div></div>
+  <div id="fade"></div>
+
+  <div id="mcStage">
+    <div class="mGroup">
+      <button class="mBtn" data-stage="left">&#9664;</button>
+      <button class="mBtn" data-stage="right">&#9654;</button>
+    </div>
+    <div class="mGroup">
+      <button class="mBtn" data-stage="run">Run</button>
+      <button class="mBtn" data-stage="fire">&#9679;</button>
+      <button class="mBtn big" data-stage="jump">Jump</button>
+    </div>
+  </div>
+
+  <div id="mcMap">
+    <div class="mGroup">
+      <button class="mBtn" data-map="left">&#9664;</button>
+      <button class="mBtn" data-map="right">&#9654;</button>
+      <button class="mBtn" data-map="up">&#9650;</button>
+      <button class="mBtn" data-map="down">&#9660;</button>
+    </div>
+    <div class="mGroup">
+      <button class="mBtn wide" data-map="world">World</button>
+      <button class="mBtn big" data-map="select">Go</button>
+    </div>
+  </div>
+
+  <script type="module" src="/src/main.ts"></script>
+</body>
+</html>
