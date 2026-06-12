@@ -1,5 +1,5 @@
 import { pad } from '../utils/format.ts';
-import { TRANSITION_MS, IS_TOUCH, WORLD_ORDER } from '../constants/game.ts';
+import { TRANSITION_MS, IS_TOUCH, WORLD_ORDER, COMBO } from '../constants/game.ts';
 import type { GameState } from '../core/GameState.ts';
 import type { SaveManager } from '../core/SaveManager.ts';
 import { WORLD_INDEX } from '../data/worlds.ts';
@@ -76,7 +76,7 @@ export class UIManager {
     this.comboEl.classList.toggle('hidden', !active);
     if (!active) { this.lastComboMult = 1; return; }
     this.comboMult.textContent = `COMBO x${gs.comboMult}`;
-    this.comboFill.style.transform = `scaleX(${Math.min(1, gs.comboT / 3.2)})`;
+    this.comboFill.style.transform = `scaleX(${Math.min(1, gs.comboT / COMBO.windowSec)})`;
     if (gs.comboMult !== this.lastComboMult) {
       this.lastComboMult = gs.comboMult;
       this.comboMult.classList.remove('pop');

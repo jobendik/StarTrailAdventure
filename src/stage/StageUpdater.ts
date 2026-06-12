@@ -1,5 +1,6 @@
 import * as THREE from 'three';
 import { GRAV } from '../constants/physics.ts';
+import { COMBO } from '../constants/game.ts';
 import { aabb } from '../utils/math.ts';
 import type { StageState } from './StageState.ts';
 import type { StageObjects } from './StageObjects.ts';
@@ -172,8 +173,8 @@ export class StageUpdater {
     gs.stompChain++;
     const mult  = gs.addCombo();
     const base  = e.type === 'koopa' ? 200 : 100;
-    const chainValue = base * Math.pow(2, Math.min(gs.stompChain - 1, 5));
-    if (gs.stompChain >= 7) {
+    const chainValue = base * Math.pow(2, Math.min(gs.stompChain - 1, COMBO.maxStompDoublings));
+    if (gs.stompChain >= COMBO.stompChainFor1Up) {
       gs.lives++;
       audio.play('pow');
       so.addFloatingText(e.x, e.y + 0.9, '1UP', '#71ff7c');

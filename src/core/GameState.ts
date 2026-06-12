@@ -1,4 +1,5 @@
 import type { GameMode, CurrentStageInfo, SpawnPoint, MusicMode } from '../types/game.ts';
+import { COMBO } from '../constants/game.ts';
 
 export class GameState {
   mode:         GameMode = 'title';
@@ -46,13 +47,16 @@ export class GameState {
 
   /** Score multiplier derived from the active combo chain. */
   get comboMult(): number {
-    return this.comboCount >= 20 ? 5 : this.comboCount >= 12 ? 4 : this.comboCount >= 7 ? 3 : this.comboCount >= 3 ? 2 : 1;
+    for (const [minChain, mult] of COMBO.tiers) {
+      if (this.comboCount >= minChain) return mult;
+    }
+    return 1;
   }
 
   /** Register a combo event (coin grab, stomp, …) and return the active multiplier. */
   addCombo(): number {
     this.comboCount++;
-    this.comboT = 3.2;
+    this.comboT = COMBO.windowSec;
     return this.comboMult;
   }
 }

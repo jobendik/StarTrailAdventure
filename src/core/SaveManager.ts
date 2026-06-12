@@ -3,6 +3,8 @@ import type { SaveData, StageRecord } from '../types/save.ts';
 import type { RankType } from '../types/game.ts';
 import { NODE_INDEX, WORLD_INDEX } from '../data/worlds.ts';
 
+const MS_PER_DAY = 86400000;
+
 function defaultSave(): SaveData {
   return {
     version: 1, bestScore: 0, totalCoinsLifetime: 0,
@@ -48,7 +50,7 @@ export class SaveManager {
   claimDailyStreak(): { streak: number; bonusLives: number } | null {
     const today = new Date().toISOString().slice(0, 10);
     if (this.data.lastPlayDate === today) return null;
-    const yesterday = new Date(Date.now() - 86400000).toISOString().slice(0, 10);
+    const yesterday = new Date(Date.now() - MS_PER_DAY).toISOString().slice(0, 10);
     this.data.streakDays = this.data.lastPlayDate === yesterday ? this.data.streakDays + 1 : 1;
     this.data.lastPlayDate = today;
     this.persist();
