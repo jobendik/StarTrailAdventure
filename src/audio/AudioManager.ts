@@ -21,33 +21,55 @@ const MUSIC_PATTERNS: Record<string, number[]> = {
 
 export class AudioManager {
   private ctx: AudioContext | null = null;
+  private master: GainNode | null = null;
   private musicToken = 0;
   private _musicMode: MusicMode = 'none';
+  private _muted = false;
 
   get musicMode() { return this._musicMode; }
+  get muted() { return this._muted; }
+
+  setMuted(muted: boolean): void {
+    this._muted = muted;
+    if (this.master && this.ctx) {
+      this.master.gain.setTargetAtTime(muted ? 0 : 1, this.ctx.currentTime, 0.02);
+    }
+  }
 
   init(): void {
-    if (!this.ctx) this.ctx = new (window.AudioContext || (window as unknown as { webkitAudioContext: typeof AudioContext }).webkitAudioContext)();
+    if (!this.ctx) {
+      this.ctx = new (window.AudioContext || (window as unknown as { webkitAudioContext: typeof AudioContext }).webkitAudioContext)();
+      this.master = this.ctx.createGain();
+      this.master.gain.value = this._muted ? 0 : 1;
+      this.master.connect(this.ctx.destination);
+    }
     if (this.ctx.state === 'suspended') void this.ctx.resume();
   }
 
-  private beep(type: OscType, freqs: number | FreqPoint[], vol = 0.08, dur = 0.16): void {
-    if (!this.ctx) return;
+  private beep(type: OscType, freqs: number | FreqPoint[], vol = 0.08, dur = 0.16, pitchMul = 1): void {
+    if (!this.ctx || !this.master) return;
     const t = this.ctx.currentTime;
     const osc = this.ctx.createOscillator();
     const gain = this.ctx.createGain();
     osc.connect(gain);
-    gain.connect(this.ctx.destination);
+    gain.connect(this.master);
     osc.type = type;
     if (Array.isArray(freqs)) {
-      freqs.forEach(([f, at]) => osc.frequency.setValueAtTime(f, t + at));
+      freqs.forEach(([f, at]) => osc.frequency.setValueAtTime(f * pitchMul, t + at));
     } else {
-      osc.frequency.setValueAtTime(freqs, t);
+      osc.frequency.setValueAtTime(freqs * pitchMul, t);
     }
     gain.gain.setValueAtTime(vol, t);
     gain.gain.exponentialRampToValueAtTime(0.001, t + dur);
     osc.start(t);
     osc.stop(t + dur + 0.02);
+  }
+
+  /** Coin pickup with rising pitch as the combo chain grows. */
+  playCoin(chain = 0): void {
+    if (!this.ctx) return;
+    const pitchMul = Math.pow(2, Math.min(chain, 12) / 12);
+    this.beep('square', [[988, 0], [1318, .06]], .08, .15, pitchMul);
   }
 
   play(name: string): void {
@@ -83,7 +105,7 @@ export class AudioManager {
     const stepMs  = 60000 / tempo / 2;
     let step = 0;
     const tick = () => {
-      if (token !== this.musicToken || !this.ctx) return;
+      if (token !== this.musicToken || !this.ctx || !this.master) return;
       const now   = this.ctx.currentTime;
       const note  = pattern[step % pattern.length]!;
       const freq  = root * Math.pow(2, note / 12);
@@ -91,7 +113,7 @@ export class AudioManager {
       const bassFreq = root * Math.pow(2, bassNote / 12);
       const osc1 = this.ctx.createOscillator();
       const g1   = this.ctx.createGain();
-      osc1.connect(g1); g1.connect(this.ctx.destination);
+      osc1.connect(g1); g1.connect(this.master);
       osc1.type = mode === 'fortress' ? 'triangle' : 'square';
       osc1.frequency.setValueAtTime(freq, now);
       g1.gain.setValueAtTime(0.032, now);
@@ -99,7 +121,7 @@ export class AudioManager {
       osc1.start(now); osc1.stop(now + 0.2);
       if (step % 2 === 0) {
         const osc2 = this.ctx.createOscillator(); const g2 = this.ctx.createGain();
-        osc2.connect(g2); g2.connect(this.ctx.destination);
+        osc2.connect(g2); g2.connect(this.master);
         osc2.type = 'triangle';
         osc2.frequency.setValueAtTime(bassFreq, now);
         g2.gain.setValueAtTime(0.016, now);

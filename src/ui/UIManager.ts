@@ -23,6 +23,12 @@ export class UIManager {
   private readonly mapCanvas= el('mapc');
   private readonly mcStage  = el('mcStage');
   private readonly mcMap    = el('mcMap');
+  private readonly pauseEl  = el('pause');
+  private readonly btnMute  = el<HTMLButtonElement>('btnMute');
+  private readonly comboEl  = el('combo');
+  private readonly comboMult= el('comboMult');
+  private readonly comboFill= el('comboBarFill');
+  private lastComboMult = 1;
 
   // Menu state
   selectedMenu = 0;
@@ -45,6 +51,39 @@ export class UIManager {
   }
 
   hideCard(): void { this.card.classList.add('hidden'); }
+
+  bindPauseControls(onResume: () => void, onRestart: () => void, onMute: () => void, onQuit: () => void, onPauseBtn: () => void): void {
+    el('btnResume').onclick  = onResume;
+    el('btnRestart').onclick = onRestart;
+    this.btnMute.onclick     = onMute;
+    el('btnQuit').onclick    = onQuit;
+    el('btnPause').onclick   = onPauseBtn;
+  }
+
+  showPause(muted: boolean): void {
+    this.updateMuteLabel(muted);
+    this.pauseEl.classList.remove('hidden');
+  }
+
+  hidePause(): void { this.pauseEl.classList.add('hidden'); }
+
+  updateMuteLabel(muted: boolean): void {
+    this.btnMute.textContent = muted ? 'Sound: Off' : 'Sound: On';
+  }
+
+  updateCombo(gs: GameState): void {
+    const active = gs.comboT > 0 && gs.comboMult > 1;
+    this.comboEl.classList.toggle('hidden', !active);
+    if (!active) { this.lastComboMult = 1; return; }
+    this.comboMult.textContent = `COMBO x${gs.comboMult}`;
+    this.comboFill.style.transform = `scaleX(${Math.min(1, gs.comboT / 3.2)})`;
+    if (gs.comboMult !== this.lastComboMult) {
+      this.lastComboMult = gs.comboMult;
+      this.comboMult.classList.remove('pop');
+      void this.comboMult.offsetWidth;
+      this.comboMult.classList.add('pop');
+    }
+  }
 
   showRank(r: string): void {
     this.rankEl.textContent = r;
@@ -74,6 +113,8 @@ export class UIManager {
     this.mapCanvas.classList.remove('show');
     this.mcStage.classList.remove('show');
     this.mcMap.classList.remove('show');
+    this.hidePause();
+    this.comboEl.classList.add('hidden');
     this.hideCard();
   }
 
@@ -84,6 +125,8 @@ export class UIManager {
     this.mapCanvas.classList.add('show');
     if (IS_TOUCH) this.mcMap.classList.add('show');
     this.mcStage.classList.remove('show');
+    this.hidePause();
+    this.comboEl.classList.add('hidden');
     this.hideCard();
   }
 
@@ -107,6 +150,8 @@ export class UIManager {
     this.mapCanvas.classList.remove('show');
     this.mcMap.classList.remove('show');
     this.mcStage.classList.remove('show');
+    this.hidePause();
+    this.comboEl.classList.add('hidden');
   }
 
   rebuildTitleMenu(
@@ -143,7 +188,8 @@ export class UIManager {
       `Worlds unlocked: ${wCount}/${WORLD_ORDER.length}`,
       `Exits found: ${exitsFound}/${exitMax}`,
       `Best score: ${pad(save.data.bestScore, 6)}`,
-    ].join('<br>');
+      save.data.streakDays > 1 ? `Daily streak: ${save.data.streakDays} days &#x1F525;` : '',
+    ].filter(Boolean).join('<br>');
     void gs;
   }
 

@@ -167,8 +167,22 @@ export class StageUpdater {
     gs.shakeT = 0.16; gs.shakeI = 2;
     audio.play('stomp');
     player.sqy = 0.72; player.sqx = 1.28;
-    gs.score += e.type === 'koopa' ? 200 : 100;
-    so.addParticle(e.x, e.y + 0.3, e.type === 'koopa' ? 0x44aa55 : 0x8b4c25, 5, 3);
+
+    // Air stomp chain: consecutive stomps without landing double in value, then award a 1UP.
+    gs.stompChain++;
+    const mult  = gs.addCombo();
+    const base  = e.type === 'koopa' ? 200 : 100;
+    const chainValue = base * Math.pow(2, Math.min(gs.stompChain - 1, 5));
+    if (gs.stompChain >= 7) {
+      gs.lives++;
+      audio.play('pow');
+      so.addFloatingText(e.x, e.y + 0.9, '1UP', '#71ff7c');
+    } else {
+      const value = chainValue * mult;
+      gs.score += value;
+      so.addFloatingText(e.x, e.y + 0.9, gs.stompChain > 1 ? `${value} CHAIN x${gs.stompChain}` : String(value), gs.stompChain > 1 ? '#ffb347' : '#ffffff');
+    }
+    so.addParticle(e.x, e.y + 0.3, e.type === 'koopa' ? 0x44aa55 : 0x8b4c25, 5 + gs.stompChain, 3);
     if (e.type === 'koopa') {
       e.isShell = true; e.alive = true; e.squash = 0; e.shellV = 0;
       e.mesh.scale.y = 0.56;

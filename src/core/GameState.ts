@@ -18,6 +18,11 @@ export class GameState {
   nodeId:           string = 'w1_1';
   selectedNodeId:   string = 'w1_1';
 
+  paused:     boolean = false;
+  comboCount: number  = 0;  // chained pickups/stomps
+  comboT:     number  = 0;  // time left to keep the combo alive
+  stompChain: number  = 0;  // consecutive stomps without landing
+
   time:        number = 300;
   noDamage:    boolean = true;
   checkpoint:  SpawnPoint | null = null;
@@ -36,5 +41,18 @@ export class GameState {
     this.power = 0; this.starT = 0; this.invT = 0;
     this.freezeT = 0; this.shakeT = 0; this.shakeI = 0;
     this.noDamage = true; this.checkpoint = null;
+    this.paused = false; this.comboCount = 0; this.comboT = 0; this.stompChain = 0;
+  }
+
+  /** Score multiplier derived from the active combo chain. */
+  get comboMult(): number {
+    return this.comboCount >= 20 ? 5 : this.comboCount >= 12 ? 4 : this.comboCount >= 7 ? 3 : this.comboCount >= 3 ? 2 : 1;
+  }
+
+  /** Register a combo event (coin grab, stomp, …) and return the active multiplier. */
+  addCombo(): number {
+    this.comboCount++;
+    this.comboT = 3.2;
+    return this.comboMult;
   }
 }

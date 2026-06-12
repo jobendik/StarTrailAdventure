@@ -19,6 +19,25 @@
     <div class="hudBlock"><div class="hudLabel">Stage</div><div class="hudVal" id="hw">1-1</div></div>
     <div class="hudBlock"><div class="hudLabel">Time</div><div class="hudVal" id="ht">300</div></div>
     <div class="hudBlock"><div class="hudLabel">Lives</div><div class="hudVal" id="hlv">5</div></div>
+    <button id="btnPause" title="Pause (Esc)">&#10074;&#10074;</button>
+  </div>
+
+  <div id="combo" class="hidden">
+    <div id="comboMult">x2</div>
+    <div id="comboBar"><div id="comboBarFill"></div></div>
+  </div>
+
+  <div id="pause" class="hidden">
+    <div id="pauseBox">
+      <div id="pauseTitle">Paused</div>
+      <div id="pauseButtons">
+        <button class="menuBtn" id="btnResume">Resume</button>
+        <button class="menuBtn alt" id="btnRestart">Restart Stage</button>
+        <button class="menuBtn" id="btnMute">Sound: On</button>
+        <button class="menuBtn warn" id="btnQuit">Quit to Map</button>
+      </div>
+      <div id="pauseHint">Esc / P: Resume &middot; M: Mute</div>
+    </div>
   </div>
 
   <div id="hudMap">

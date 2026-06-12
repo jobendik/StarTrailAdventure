@@ -564,3 +564,116 @@ body::after {
   pointer-events: none;
   z-index: 2;
 }
+
+/* Pause overlay */
+#pause {
+  position: fixed; inset: 0;
+  z-index: 14;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(4, 7, 22, 0.72);
+  backdrop-filter: blur(6px);
+  transition: opacity 0.2s ease;
+}
+
+#pause.hidden { opacity: 0; pointer-events: none; }
+
+#pauseBox {
+  width: min(86vw, 420px);
+  background: linear-gradient(160deg, rgba(16, 22, 60, 0.94), rgba(6, 8, 28, 0.97));
+  border: 1px solid var(--border-mid);
+  border-radius: 24px;
+  box-shadow: var(--shadow-card), inset 0 1px 0 rgba(255,255,255,0.08);
+  padding: 30px 32px 24px;
+  text-align: center;
+}
+
+#pauseTitle {
+  font-family: var(--font-display);
+  font-size: clamp(28px, 5vw, 40px);
+  font-weight: 800;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: #fff;
+  margin-bottom: 20px;
+}
+
+#pauseButtons {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-bottom: 16px;
+}
+
+#pauseHint {
+  font-family: var(--font-ui);
+  font-size: 12px;
+  color: rgba(220, 228, 255, 0.55);
+  letter-spacing: 0.04em;
+}
+
+/* Pause button in stage HUD */
+#btnPause {
+  pointer-events: auto;
+  width: 44px; height: 44px;
+  border-radius: 14px;
+  border: 1px solid var(--border-mid);
+  background: linear-gradient(160deg, rgba(16, 22, 60, 0.8), rgba(6, 8, 28, 0.85));
+  color: rgba(220, 228, 255, 0.85);
+  font-size: 14px;
+  cursor: pointer;
+  transition: transform 0.12s ease, background 0.2s ease;
+}
+
+#btnPause:hover { transform: scale(1.06); background: rgba(36, 48, 110, 0.85); }
+#btnPause:active { transform: scale(0.95); }
+
+/* Combo display */
+#combo {
+  position: fixed;
+  top: 86px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 6;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  pointer-events: none;
+  transition: opacity 0.25s ease;
+}
+
+#combo.hidden { opacity: 0; }
+
+#comboMult {
+  font-family: var(--font-display);
+  font-size: clamp(26px, 4.4vw, 42px);
+  font-weight: 900;
+  color: var(--gold-bright);
+  text-shadow: 0 0 18px rgba(255, 204, 68, 0.55), 0 3px 0 rgba(120, 70, 0, 0.6);
+  letter-spacing: 0.04em;
+}
+
+#comboMult.pop { animation: comboPop 0.26s cubic-bezier(0.17, 0.89, 0.32, 1.4); }
+
+@keyframes comboPop {
+  0%   { transform: scale(1); }
+  45%  { transform: scale(1.35); }
+  100% { transform: scale(1); }
+}
+
+#comboBar {
+  width: 120px; height: 6px;
+  border-radius: 3px;
+  background: rgba(255, 255, 255, 0.14);
+  overflow: hidden;
+}
+
+#comboBarFill {
+  height: 100%;
+  width: 100%;
+  border-radius: 3px;
+  background: linear-gradient(90deg, var(--gold), var(--gold-bright));
+  transform-origin: left;
+}

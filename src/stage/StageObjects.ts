@@ -281,11 +281,13 @@ export class StageObjects {
 
   collectCoinFx(x: number, y: number, gameState: GameState, audio: AudioManager): void {
     gameState.coins++;
-    gameState.score += 200;
     gameState.foundCoins++;
-    if (gameState.coins >= 100) { gameState.coins = 0; gameState.lives++; audio.play('pow'); }
-    audio.play('coin');
-    this.addFloatingText(x, y, '200', '#ffe36c');
+    const mult  = gameState.addCombo();
+    const value = 200 * mult;
+    gameState.score += value;
+    if (gameState.coins >= 100) { gameState.coins = 0; gameState.lives++; audio.play('pow'); this.addFloatingText(x, y + 0.7, '1UP', '#71ff7c'); }
+    audio.playCoin(gameState.comboCount);
+    this.addFloatingText(x, y, mult > 1 ? `${value} x${mult}` : String(value), mult > 1 ? '#ffb347' : '#ffe36c');
   }
 
   addCrystalDecor(x: number, y: number, z = -1.1, scale = 1): void {

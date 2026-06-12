@@ -77,6 +77,23 @@ export class Game {
     this.input.init();
     this.input.onKeyPress(code => this.handleKeyPress(code));
 
+    // Pause overlay buttons + HUD pause button
+    this.ui.bindPauseControls(
+      () => this.flow.togglePause(),
+      () => { void this.flow.restartStage(); },
+      () => this.flow.toggleMute(),
+      () => { void this.flow.quitToMap(); },
+      () => this.flow.togglePause(),
+    );
+
+    // Auto-pause when the tab loses focus (platform best practice)
+    document.addEventListener('visibilitychange', () => {
+      if (document.hidden && this.gs.mode === 'playing' && !this.gs.paused) this.flow.togglePause();
+    });
+
+    // Restore persisted mute preference
+    this.audio.setMuted(this.save.data.muted);
+
     // Map canvas click
     const mapCanvas = document.getElementById('mapc') as HTMLCanvasElement;
     mapCanvas.addEventListener('pointerdown', e => this.mapMgr.handleCanvasClick(e, mapCanvas));
@@ -95,6 +112,8 @@ export class Game {
 
   private tick(dt: number): void {
     const { gs } = this;
+
+    if (gs.paused) { this.three.render(); return; }
 
     if (gs.freezeT > 0) { gs.freezeT -= dt; this.three.render(); return; }
 
@@ -116,6 +135,7 @@ export class Game {
         (exit) => { void this.flow.clearStage(exit); },
       );
       this.hud.updateStage(gs);
+      this.ui.updateCombo(gs);
     }
 
     if (gs.mode === 'dead') {
@@ -136,6 +156,17 @@ export class Game {
 
   private handleKeyPress(code: string): void {
     const { gs, ui } = this;
+
+    // Global mute toggle
+    if (code === 'KeyM') { this.flow.toggleMute(); return; }
+
+    // Pause toggle while playing
+    if ((code === 'Escape' || code === 'KeyP') && (gs.mode === 'playing' || gs.paused)) {
+      this.flow.togglePause();
+      return;
+    }
+    if (gs.paused) return;
+
     if (gs.mode === 'title') {
       if (code === 'ArrowUp'   || code === 'KeyW') ui.navigateMenu(-1, this.save);
       if (code === 'ArrowDown' || code === 'KeyS') ui.navigateMenu(1,  this.save);

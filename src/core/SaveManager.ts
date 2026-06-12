@@ -8,6 +8,7 @@ function defaultSave(): SaveData {
     version: 1, bestScore: 0, totalCoinsLifetime: 0,
     unlockedWorlds: ['w1'], currentWorld: 'w1', currentNode: 'w1_1',
     stages: {}, gameCompleted: false, started: false,
+    muted: false, lastPlayDate: '', streakDays: 0,
   };
 }
 
@@ -31,9 +32,27 @@ export class SaveManager {
   }
 
   wipe(): void {
+    const { muted, lastPlayDate, streakDays } = this.data;
     this.data = defaultSave();
+    this.data.muted = muted;
+    this.data.lastPlayDate = lastPlayDate;
+    this.data.streakDays = streakDays;
     this.ensureStageRecord('w1_1').unlocked = true;
     this.persist();
+  }
+
+  /**
+   * Daily streak retention hook. Call once per session start.
+   * Returns the updated streak and bonus lives when today is a new play day, otherwise null.
+   */
+  claimDailyStreak(): { streak: number; bonusLives: number } | null {
+    const today = new Date().toISOString().slice(0, 10);
+    if (this.data.lastPlayDate === today) return null;
+    const yesterday = new Date(Date.now() - 86400000).toISOString().slice(0, 10);
+    this.data.streakDays = this.data.lastPlayDate === yesterday ? this.data.streakDays + 1 : 1;
+    this.data.lastPlayDate = today;
+    this.persist();
+    return { streak: this.data.streakDays, bonusLives: Math.min(this.data.streakDays, 5) };
   }
 
   ensureStageRecord(id: string): StageRecord {
