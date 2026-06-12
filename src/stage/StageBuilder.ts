@@ -154,20 +154,6 @@ export class StageBuilder {
       let vx = Math.floor(length * 0.32), vy = 3;
       for (let i = 0; i < 7; i++) {
         const w = 3 + (i % 2);
-
-    // Logg ut statistikk for banen
-    console.table({
-      stage: node.id,
-      coins: ss.coins.length,
-      enemies: ss.enemies.length,
-      powerups: ss.powerups.length,
-      questionBlocks: ss.solids.filter(s => s.type === 'question').length,
-      hiddenBlocks: ss.solids.filter(s => s.type === 'hidden').length,
-      mushroomBlocks,
-      fireBlocks,
-      starBlocks: ss.solids.filter(s => s.content === 'star').length,
-      oneUps: ss.solids.filter(s => s.content === '1up').length,
-    });
         for (let k = 0; k < w; k++) so.addSolidBlock(vx + k, vy, undefined, 'brick');
         if (i % 2 === 0) so.addCoinArc(vx, vy + 2, 3, 1, 1);
         if (i === 2 || i === 5) so.addMovingPlatform(vx + w + 2, vy + 1.5, 3, 1.6, 0, 0.9 + i * 0.05);

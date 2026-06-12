@@ -24,7 +24,9 @@ export class GameFlow {
   async continueGame(): Promise<void> {
     const { gs, save, audio } = this.game;
     audio.init();
+    audio.setMuted(save.data.muted);
     gs.reset();
+    this.applyDailyStreak();
     gs.worldId        = save.data.currentWorld ?? 'w1';
     gs.selectedNodeId = save.nodeUnlocked(save.data.currentNode)
       ? save.data.currentNode
@@ -36,13 +38,65 @@ export class GameFlow {
   async newGame(): Promise<void> {
     const { gs, save, audio } = this.game;
     audio.init();
+    audio.setMuted(save.data.muted);
     save.wipe();
     save.data.started = true;
     gs.reset();
+    this.applyDailyStreak();
     save.unlockNode('w1_1');
     this.syncToSave('w1_1');
     save.persist();
     await this.goToMap(false);
+  }
+
+  /** Grant the daily streak bonus once per day — a reason to come back tomorrow. */
+  private applyDailyStreak(): void {
+    const { gs, ui, save } = this.game;
+    const reward = save.claimDailyStreak();
+    if (!reward) return;
+    gs.lives += reward.bonusLives;
+    ui.toast(
+      reward.streak > 1
+        ? `Day ${reward.streak} streak! +${reward.bonusLives} bonus lives`
+        : `Welcome back! +1 bonus life`,
+      2600,
+    );
+  }
+
+  togglePause(): void {
+    const { gs, ui, audio, save } = this.game;
+    if (gs.mode !== 'playing' && !gs.paused) return;
+    gs.paused = !gs.paused;
+    if (gs.paused) {
+      audio.stopMusic();
+      ui.showPause(save.data.muted);
+    } else {
+      ui.hidePause();
+      this.startStageMusic();
+    }
+  }
+
+  toggleMute(): void {
+    const { ui, audio, save } = this.game;
+    save.data.muted = !save.data.muted;
+    save.persist();
+    audio.setMuted(save.data.muted);
+    ui.updateMuteLabel(save.data.muted);
+    ui.toast(save.data.muted ? 'Sound off' : 'Sound on', 900);
+  }
+
+  async restartStage(): Promise<void> {
+    const { gs, ui } = this.game;
+    gs.paused = false;
+    ui.hidePause();
+    await this.enterStage();
+  }
+
+  async quitToMap(): Promise<void> {
+    const { gs, ui } = this.game;
+    gs.paused = false;
+    ui.hidePause();
+    await this.goToMap(true);
   }
 
   async goToMap(faded = true, message?: string): Promise<void> {
@@ -71,6 +125,8 @@ export class GameFlow {
     await ui.fadeIn();
 
     gs.mode = 'playing';
+    gs.paused = false;
+    gs.comboCount = 0; gs.comboT = 0; gs.stompChain = 0;
     ui.showStageUI();
     this.syncToSave(node.id);
 
@@ -130,6 +186,7 @@ export class GameFlow {
     player.vx = 0; player.vy = 0;
     player.onGround = false; player.state = 'idle';
     gs.invT = 2; gs.power = 0; gs.starT = 0;
+    gs.comboCount = 0; gs.comboT = 0; gs.stompChain = 0;
     this.startStageMusic();
   }
 

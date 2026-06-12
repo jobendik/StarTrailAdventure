@@ -24,6 +24,7 @@ export class Player {
   private lastJump  = false;
   private lastFire  = false;
   private fireCooldown = 0;
+  private dustT = 0;
 
   getBox(nx = this.x, ny = this.y): PlayerBox {
     return { x: nx - this.w / 2, y: ny, w: this.w, h: this.h };
@@ -274,6 +275,24 @@ export class Player {
     if (this.onGround && Math.abs(this.vx) > 0.5) this.state = 'run';
     else if (!this.onGround) this.state = this.vy > 0 ? 'jump' : 'fall';
     else this.state = 'idle';
+
+    // Reset air stomp chain on landing
+    if (this.onGround) gs.stompChain = 0;
+
+    // Run dust trail at high speed
+    if (this.state === 'run' && Math.abs(this.vx) > PHYS.walk + 0.5) {
+      this.dustT -= dt;
+      if (this.dustT <= 0) {
+        this.dustT = 0.09;
+        so.addParticle(this.x - this.face * 0.3, this.y + 0.06, 0xe7ecff, 1, 1.6);
+      }
+    }
+
+    // Combo decay
+    if (gs.comboT > 0) {
+      gs.comboT -= dt;
+      if (gs.comboT <= 0) { gs.comboT = 0; gs.comboCount = 0; }
+    }
 
     gs.invT  = Math.max(0, gs.invT  - dt);
     gs.starT = Math.max(0, gs.starT - dt);

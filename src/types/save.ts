@@ -23,4 +23,7 @@ export interface SaveData {
   stages: Record<string, StageRecord>;
   gameCompleted: boolean;
   started: boolean;
+  muted: boolean;
+  lastPlayDate: string;
+  streakDays: number;
 }

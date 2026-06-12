@@ -21,6 +21,9 @@ A polished 3D platformer adventure built with TypeScript and Three.js. Explore v
 - **Replay Value:**
   - Stages are ranked (C, B, A, S) based on coins, time, damage, and secrets.
   - Track completion percent and best scores for each world.
+  - Combo system: chain coins and stomps to build up to a x5 score multiplier.
+  - Air stomp chains double in value with every bounce and award a 1UP.
+  - Daily streak rewards: come back every day for bonus lives.
 
 - **Save System:**
   - Automatic saving of progress, unlocked nodes, worlds, and best scores.
@@ -58,6 +61,10 @@ npm run preview
 ## Controls
 - **Arrow Keys / WASD:** Move
 - **Enter / Space:** Select / Jump
+- **Shift / Z:** Run
+- **X / Ctrl:** Fire (with fire flower)
+- **Esc / P:** Pause
+- **M:** Mute / unmute sound
 - **Tab / Q / E:** Switch world on map
 - **Run / Fire / Jump:** On-screen buttons for touch devices
 
